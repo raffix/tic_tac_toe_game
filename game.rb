@@ -8,24 +8,52 @@ class Game
   ]
 
   LEVELS = ['easy', 'normal', 'hard']
+  GAME_TYPES = ['computers', 'computer_human', 'humans']
   def initialize
     @level = 'easy'
     @board = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
     @player1 = 'X'
     @player2 = 'O'
     @current_player = 'X'
-    @computer = nil
+    @computer1 = nil
+    @computer2 = nil
+    @game_type = 'computer_human'
+  end
+
+  def run
+    select_kind
+  end
+
+  private
+
+  def select_kind
+    print "\e[2J\e[f"
+    puts "Welcome to TIC TAC TOE game, select the kind of game\n1 - Computer vs Computer\n2 - Computer vs Human\n3 - Human vs Human"
+    type = gets.chomp.to_i
+    if type < 1 && type > 3
+      select_kind
+    end
+
+    @game_type = GAME_TYPES[type-1]
+
+    if @game_type == GAME_TYPES[0]
+      @computer1 = Computer.new('X', LEVELS[2])
+      @computer2 = Computer.new('O', LEVELS[2])
+    end
+    
+    return select_level if @game_type == GAME_TYPES[1]
+    
+    start_game
   end
 
   def select_level
-    print "\e[2J\e[f"
-    puts "Welcome to TIC TAC TOE game, please select a level of difficult:\n1 - Easy (selected)\n2 - Normal\n3 - Hard\n"
+    puts "Please select a level of difficult:\n1 - Easy\n2 - Normal\n3 - Hard\n"
     level = gets.chomp.to_i
     if level < 1 && level > 3
       select_level
     end
     @level = LEVELS[level-1]
-    @computer = Computer.new('X', @level)
+    @computer1 = Computer.new('X', @level)
 
     start_game
   end
@@ -33,12 +61,26 @@ class Game
   def start_game
     print_board
     until game_is_over(@board) || tie(@board)
-      position = @current_player == 'X' ? @computer.get_movement(@board) : get_human_spot
+      position = get_position
       @board[position] = @current_player
       switch_players
       print_board
     end
     puts 'Game over'
+  end
+
+  def get_position
+    position = ''
+    case @game_type
+    when GAME_TYPES[0]
+      position = @current_player == 'X' ? @computer1.get_movement(@board) : @computer2.get_movement(@board)
+    when GAME_TYPES[1]
+      position = @current_player == 'X' ? @computer1.get_movement(@board) : get_human_spot
+    when GAME_TYPES[2]
+      position = get_human_spot
+    end
+
+    position
   end
 
   def print_board
@@ -58,23 +100,6 @@ class Game
       return spot.to_i if valid_input(spot) && empty_position(spot.to_i) && valid_spot(spot.to_i)
       puts "#{spot} is invalid, please try again.\nEnter with your move [0 - 8]:"
       spot = nil
-    end
-  end
-
-  def eval_board
-    spot = nil
-    until spot
-      if @board[4] == '4'
-        spot = 4
-        @board[spot] = @com
-      else
-        spot = get_computer_movement
-        if empty_position(spot)
-          @board[spot] = @com
-        else
-          spot = nil
-        end
-      end
     end
   end
   
@@ -111,6 +136,4 @@ class Game
 end
 
 game = Game.new
-game.select_level
-
-
+game.run
