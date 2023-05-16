@@ -6,7 +6,7 @@ class Computer
   end
 
   def get_movement(board)
-    puts 'get_movement'
+    sleep(2)
     position = 0
     case @level
     when 'easy'

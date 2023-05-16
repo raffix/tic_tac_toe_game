@@ -85,12 +85,13 @@ class Game
 
   def print_board
     print "\e[2J\e[f"
+    puts "#{@current_player == @player1 ? 'Player 1' : 'Player 2'} turn"
     puts "#{@board[0]} | #{@board[1]} | #{@board[2]}" 
     puts "===+===+===" 
     puts "#{@board[3]} | #{@board[4]} | #{@board[5]}"
     puts "===+===+==="
     puts "#{@board[6]} | #{@board[7]} | #{@board[8]}"
-    puts "Enter with your move[0 - 8]:"
+    puts "Enter with your move, select the spot number[0 - 8]:" if @game_type != GAME_TYPES[0]
   end
 
   def get_human_spot
